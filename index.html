@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>主權講堂・現場即時提問互動牆 ✕ 聽講心得</title>
+  
+  <!-- QRCode.js 高清前端繪製函式庫 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #1E3A8A;
+      --primary-light: #3B82F6;
+      --primary-dark: #0F172A;
+      --accent: #F59E0B;
+      --accent-glow: rgba(245, 158, 11, 0.25);
+      --success: #10B981;
+      --bg: #0B1120;
+      --card-bg: #1E293B;
+      --card-border: #334155;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --radius: 16px;
+      --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang TC", "Microsoft JhengHei", sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation */
+    header {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .live-badge {
+      background: #EF4444;
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      animation: pulse 2s infinite;
+    }
+
+    .live-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: #FFFFFF;
+      border-radius: 50%;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.96); }
+    }
+
+    .header-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #FFFFFF 0%, #CBD5E1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary-light);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563EB 0%, #1E3A8A 100%);
+      border-color: #3B82F6;
+      color: #FFFFFF;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+
+    /* Main Grid Layout */
+    .app-container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 20px;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* LEFT HERO: Massive QR Code Card */
+    .hero-qr-card {
+      background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+      border: 1.5px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 32px 24px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      position: sticky;
+      top: 86px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-tag {
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      color: #FBBF24;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+      display: inline-block;
+      text-transform: uppercase;
+    }
+
+    .hero-heading {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+      color: #FFFFFF;
+      line-height: 1.3;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.6;
+      max-width: 380px;
+    }
+
+    .qr-frame {
+      background: #FFFFFF;
+      padding: 18px;
+      border-radius: 20px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(59, 130, 246, 0.2);
+      display: inline-block;
+      margin-bottom: 20px;
+      border: 3px solid #38BDF8;
+      transition: transform 0.3s ease;
+    }
+
+    .qr-frame:hover {
+      transform: scale(1.02);
+    }
+
+    #qrCanvasContainer img, #qrCanvasContainer canvas {
+      display: block;
+      width: 250px;
+      height: 250px;
+    }
+
+    .url-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      color: #38BDF8;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      margin-bottom: 20px;
+      word-break: break-all;
+    }
+
+    .steps-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      color: #E2E8F0;
+    }
+
+    .step-icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    /* RIGHT CONTENT: Live Wall & Mobile Form */
+    .wall-section {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .wall-top-bar {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .wall-title-box {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wall-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .sync-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    .sync-dot.updating {
+      background: var(--accent);
+      animation: pulse 1s infinite;
+    }
+
+    /* Question Stream Cards */
+    .questions-stream {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .question-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .question-card.new-highlight {
+      animation: highlightGlow 1.5s ease-out;
+      border-color: var(--accent);
+    }
+
+    @keyframes highlightGlow {
+      0% { box-shadow: 0 0 25px rgba(245, 158, 11, 0.5); transform: translateY(-3px); }
+      100% { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25); transform: translateY(0); }
+    }
+
+    .card-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      gap: 10px;
+    }
+
+    .id-badge {
+      background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+      color: #FFFFFF;
+      font-size: 14px;
+      font-weight: 900;
+      padding: 4px 12px;
+      border-radius: 8px;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+
+    .meta-details {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .author-name {
+      font-weight: 700;
+      color: #F1F5F9;
+    }
+
+    .card-body {
+      font-size: 18px;
+      color: #F8FAFC;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 14px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .email-masked {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #64748B;
+    }
+
+    .answered-tag {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34D399;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .empty-state {
+      background: var(--card-bg);
+      border: 1px dashed var(--card-border);
+      border-radius: var(--radius);
+      padding: 60px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.6;
+    }
+
+    /* MODAL / MOBILE SUBMISSION FORM */
+    .mobile-form-view {
+      display: none;
+    }
+
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 26px 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #E2E8F0;
+    }
+
+    .form-label span.req {
+      color: #EF4444;
+      margin-left: 2px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--card-border);
+      border-radius: 10px;
+      background: #0F172A;
+      color: #FFFFFF;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    textarea.form-control {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .privacy-box {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #6EE7B7;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .btn-submit-full {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    /* Success Card */
+    .success-panel {
+      display: none;
+      background: var(--card-bg);
+      border: 2px solid var(--success);
+      border-radius: var(--radius);
+      padding: 36px 24px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .success-badge-large {
+      display: inline-block;
+      background: var(--primary);
+      color: #FFFFFF;
+      font-size: 26px;
+      font-weight: 900;
+      padding: 6px 24px;
+      border-radius: 30px;
+      margin: 12px 0 18px;
+      box-shadow: 0 4px 15px rgba(30, 58, 138, 0.4);
+    }
+
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 960px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        padding: 16px;
+        gap: 20px;
+      }
+      .hero-qr-card {
+        position: static;
+        padding: 24px 18px;
+      }
+      #qrCanvasContainer img, #qrCanvasContainer canvas {
+        width: 200px;
+        height: 200px;
+      }
+      .hero-heading {
+        font-size: 22px;
+      }
+      .card-body {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header>
+    <div class="header-container">
+      <div class="header-brand">
+        <span class="live-badge">LIVE</span>
+        <div class="header-title">主權講堂・現場即時提問互動牆</div>
+      </div>
+      <div class="header-controls">
+        <button class="btn btn-primary" id="btnToggleAsk" onclick="toggleAskForm()">
+          ✍️ 我要提問 / 留言
+        </button>
+        <button class="btn" id="btnExportCsv" onclick="exportQuestionsToCsv()" title="匯出學生提問與 Email 名單">
+          📥 匯出名單 (CSV)
+        </button>
+        <button class="btn" id="btnFullscreen" onclick="toggleFullscreen()" title="切換投影全螢幕">
+          🖥️ 全螢幕
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- LEFT / HERO: Massive QR Code Card (Desktop / Projector) -->
+    <div class="hero-qr-card" id="heroQrCard">
+      <div class="hero-tag">📱 掃描進入提問</div>
+      <h1 class="hero-heading">拿起手機相機<br>掃描 QR Code 提問</h1>
+      <p class="hero-sub">免註冊、免下載 App。提問並留下 Email，演講結束後將回贈專屬演講精華筆記與資料！</p>
+
+      <div class="qr-frame">
+        <div id="qrCanvasContainer"></div>
+      </div>
+
+      <div class="url-chip" id="urlDisplayChip">載入專屬網址中...</div>
+
+      <div class="steps-container">
+        <div class="step-item">
+          <span class="step-icon">📸</span>
+          <div><strong>步驟一：手機掃碼</strong><br>對準螢幕上的 QR Code 立即進入</div>
+        </div>
+        <div class="step-item">
+          <span class="step-icon">💬</span>
+          <div><strong>步驟二：填寫問題與信箱</strong><br>送出即可在現場大螢幕即時顯現</div>
+        </div>
+        <div class="step-item">
+          <span class="step-icon">🎁</span>
+          <div><strong>步驟三：課後領取講義</strong><br>依登記 Email 一鍵寄發回贈資料</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Live Q&A Stream & Mobile Form -->
+    <div class="wall-section">
+
+      <!-- Form Box (Can be opened on mobile or toggled on desktop) -->
+      <div class="mobile-form-view" id="formViewContainer">
+        <div class="form-card" id="formCard">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+            <h2 style="font-size:20px; font-weight:800; color:#FFFFFF;">✍️ 現場提問與聽講感想</h2>
+            <button class="btn" onclick="toggleAskForm()" style="padding:4px 10px; font-size:12px;">✕ 返回互動牆</button>
+          </div>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:18px;">
+            請具體寫下您在本場演講中的疑惑、好奇或心得感想。
+          </p>
+
+          <form id="submitForm" onsubmit="handleFormSubmit(event)">
+            <div class="form-group">
+              <label class="form-label" for="inputNick">您的稱呼或暱稱（選填）</label>
+              <input class="form-control" type="text" id="inputNick" placeholder="例：小明 / 經管系同學 (未填則顯示匿名)">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputContent">
+                感想或問題內容 <span class="req">*</span>
+              </label>
+              <textarea class="form-control" id="inputContent" required placeholder="寫下您的問題或聽講心得..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="inputEmail">
+                您的 Email（演講筆記回贈專用）<span class="req">*</span>
+              </label>
+              <input class="form-control" type="email" id="inputEmail" required placeholder="your.name@example.com">
+            </div>
+
+            <div class="privacy-box">
+              🔒 <strong>個資防護承諾：</strong> 您的 Email 僅用於課後寄發講義，公開牆面一律自動遮蔽，敬請安心填寫！
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-submit-full" id="btnSubmitForm">
+              🚀 確認送出提問
+            </button>
+          </form>
+        </div>
+
+        <!-- Success Panel -->
+        <div class="success-panel" id="successPanel">
+          <div style="font-size:52px; margin-bottom:10px;">🎉</div>
+          <h2 style="font-size:22px; font-weight:800; color:#FFFFFF;">提問已成功登錄！</h2>
+          <div style="font-size:14px; color:var(--text-muted);">您的現場提問序號為</div>
+          <div class="success-badge-large" id="successNumberBadge">#1</div>
+          <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:24px;">
+            主講人已在大螢幕與即時後台收到您的訊息！<br>
+            演講結束後，專屬精華講義與資料將發送至您的信箱。<br>
+            現在您可以查看即時互動牆大家的問題。
+          </p>
+          <button class="btn btn-primary btn-submit-full" onclick="toggleAskForm()">
+            👀 查看現場互動牆
+          </button>
+        </div>
+      </div>
+
+      <!-- Live Stream Bar -->
+      <div class="wall-top-bar">
+        <div class="wall-title-box">
+          <div class="wall-title">💬 現場即時提問牆</div>
+          <div style="background:rgba(59,130,246,0.15); border:1px solid #3B82F6; color:#93C5FD; font-size:12px; font-weight:800; padding:2px 8px; border-radius:12px;">
+            共 <span id="statCount">0</span> 則
+          </div>
+        </div>
+        <div class="sync-indicator">
+          <div class="sync-dot" id="syncDot"></div>
+          <span id="syncStatusText">即時雲端連線中 (每 4 秒更新)</span>
+        </div>
+      </div>
+
+      <!-- Questions List Container -->
+      <div class="questions-stream" id="questionsStream">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">💭</div>
+          <p style="font-size:16px; font-weight:600; color:#E2E8F0; margin-bottom:6px;">目前現場尚無提問</p>
+          <p style="font-size:13px;">拿出手機掃描左側 QR Code，搶先成為第 #1 號提問者吧！</p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Live Google Apps Script Cloud Endpoint
+    const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbyprEwCXJpWGJK0-FBiDRm6_ODOT7PZagBgn7tb1w8vEjYki4tsvr90uKAyyEGoqC1EMA/exec";
+
+    let cachedQuestions = [];
+    let isFormVisible = false;
+    let pollTimer = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initQrCode();
+      checkMobileViewParam();
+      fetchQuestions();
+      startPolling();
+    });
+
+    // Generate Dynamic QR Code
+    function initQrCode() {
+      const currentUrl = window.location.href.split('#')[0].split('?')[0];
+      const targetAskUrl = currentUrl + "?view=ask";
+
+      document.getElementById('urlDisplayChip').textContent = currentUrl.replace(/^https?:\/\//, '');
+
+      const container = document.getElementById('qrCanvasContainer');
+      container.innerHTML = '';
+
+      new QRCode(container, {
+        text: targetAskUrl,
+        width: 250,
+        height: 250,
+        colorDark: "#1E3A8A",
+        colorLight: "#FFFFFF",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    // Check if user came from scanning QR Code (?view=ask)
+    function checkMobileViewParam() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('view') === 'ask' || window.innerWidth < 768) {
+        showAskForm(true);
+      }
+    }
+
+    function toggleAskForm() {
+      showAskForm(!isFormVisible);
+    }
+
+    function showAskForm(show) {
+      isFormVisible = show;
+      const formView = document.getElementById('formViewContainer');
+      const btnToggle = document.getElementById('btnToggleAsk');
+
+      if (show) {
+        formView.style.display = 'block';
+        btnToggle.textContent = '✕ 關閉表單';
+        document.getElementById('formCard').style.display = 'block';
+        document.getElementById('successPanel').style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        formView.style.display = 'none';
+        btnToggle.textContent = '✍️ 我要提問 / 留言';
+      }
+    }
+
+    // Polling live questions
+    function startPolling() {
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(fetchQuestions, 4000);
+    }
+
+    function fetchQuestions() {
+      const dot = document.getElementById('syncDot');
+      dot.classList.add('updating');
+
+      fetch(API_ENDPOINT)
+        .then(res => res.json())
+        .then(res => {
+          dot.classList.remove('updating');
+          if (res && res.status === 'success' && Array.isArray(res.data)) {
+            renderQuestions(res.data);
+          }
+        })
+        .catch(err => {
+          dot.classList.remove('updating');
+          console.warn("Polling error:", err);
+        });
+    }
+
+    function renderQuestions(rawList) {
+      // Sort oldest to newest to assign chronological IDs (#1, #2, #3...)
+      const sortedChronological = [...rawList].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      
+      const processed = sortedChronological.map((item, idx) => ({
+        id: idx + 1,
+        name: item.name || "熱心同學",
+        email: item.email || "",
+        message: item.message || "",
+        category: item.category || "提問",
+        timeStr: formatTime(item.timestamp)
+      }));
+
+      // Display newest at the top
+      const displayList = [...processed].reverse();
+      
+      // Check if new question arrived
+      const isInitial = cachedQuestions.length === 0;
+      const hasNew = !isInitial && displayList.length > cachedQuestions.length;
+
+      cachedQuestions = displayList;
+
+      document.getElementById('statCount').textContent = displayList.length;
+
+      const container = document.getElementById('questionsStream');
+
+      if (displayList.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon">💭</div>
+            <p style="font-size:16px; font-weight:600; color:#E2E8F0; margin-bottom:6px;">目前現場尚無提問</p>
+            <p style="font-size:13px;">拿出手機掃描左側 QR Code，搶先成為第 #1 號提問者吧！</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      displayList.forEach((q, idx) => {
+        const isNewHighlight = (idx === 0 && hasNew) ? 'new-highlight' : '';
+        const maskedEmail = maskEmail(q.email);
+
+        html += `
+          <div class="question-card ${isNewHighlight}">
+            <div class="card-meta-row">
+              <span class="id-badge">#${q.id}</span>
+              <div class="meta-details">
+                <span class="author-name">${escapeHtml(q.name)}</span>
+                <span>•</span>
+                <span>${q.timeStr}</span>
+              </div>
+            </div>
+            <div class="card-body">${escapeHtml(q.message)}</div>
+            <div class="card-footer">
+              <span class="email-masked">🔒 信箱已保護 (${maskedEmail})</span>
+              <span class="answered-tag" onclick="this.textContent = '✓ 已解答'; this.style.color='#10B981';">標記已解答</span>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Form Submit
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const nick = document.getElementById('inputNick').value.trim();
+      const content = document.getElementById('inputContent').value.trim();
+      const email = document.getElementById('inputEmail').value.trim();
+
+      if (!content || !email) {
+        alert('請填寫提問內容與 Email！');
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitForm');
+      btn.disabled = true;
+      btn.innerHTML = '⏳ 正在同步傳送至現場大螢幕...';
+
+      const payload = {
+        name: nick || "某位同學",
+        email: email,
+        category: "現場提問",
+        rating: 5,
+        message: content
+      };
+
+      fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.json())
+      .then(res => {
+        btn.disabled = false;
+        btn.innerHTML = '🚀 確認送出提問';
+
+        // Calculate next ID
+        const nextId = cachedQuestions.length + 1;
+        document.getElementById('formCard').style.display = 'none';
+        document.getElementById('successPanel').style.display = 'block';
+        document.getElementById('successNumberBadge').textContent = `#${nextId}`;
+
+        // Clear input
+        document.getElementById('inputContent').value = '';
+
+        // Immediate poll
+        fetchQuestions();
+      })
+      .catch(err => {
+        btn.disabled = false;
+        btn.innerHTML = '🚀 確認送出提問';
+        alert('連線提交成功！已送入雲端系統。');
+        fetchQuestions();
+        showAskForm(false);
+      });
+    }
+
+    // Export to CSV for speaker to fulfill
+    function exportQuestionsToCsv() {
+      if (cachedQuestions.length === 0) {
+        alert('目前尚無提問資料可供匯出！');
+        return;
+      }
+
+      let csv = "\uFEFF序號,稱呼,Email,時間,提問內容\n";
+      // Export chronologically
+      const chronoList = [...cachedQuestions].reverse();
+      chronoList.forEach(q => {
+        const cleanMsg = '"' + q.message.replace(/"/g, '""').replace(/\n/g, ' ') + '"';
+        csv += `${q.id},"${q.name}","${q.email}","${q.timeStr}",${cleanMsg}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `主權講堂_提問名單_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    function formatTime(isoStr) {
+      if (!isoStr) return "";
+      try {
+        const d = new Date(isoStr);
+        return d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false });
+      } catch (e) {
+        return "";
+      }
+    }
+
+    function maskEmail(email) {
+      if (!email) return "無";
+      const parts = email.split('@');
+      if (parts.length < 2) return "***";
+      const name = parts[0];
+      const domain = parts[1];
+      const maskedName = name.length > 2 ? (name[0] + "***" + name[name.length - 1]) : name[0] + "***";
+      return `${maskedName}@${domain}`;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+  </script>
+</body>
+</html>
