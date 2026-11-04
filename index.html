@@ -30,6 +30,7 @@
       --accent-gold: #F59E0B;
       --accent-amber: #D97706;
       --accent-emerald: #10B981;
+      --accent-rose: #EF4444;
       
       --text-pure: #FFFFFF;
       --text-main: #F1F5F9;
@@ -273,7 +274,7 @@
     }
 
     /* ==========================================================================
-       LAYER 2: 大螢幕提問牆 (Slido 現場提問動態牆)
+       LAYER 2: 大螢幕提問牆 (Slido 現場提問動態牆 + 管理者封存/刪除)
        ========================================================================== */
     #viewDesktopWall {
       display: none;
@@ -291,7 +292,7 @@
 
     /* 頂部 Slido 導航列 */
     .wall-nav-header {
-      background: rgba(15, 23, 42, 0.85);
+      background: rgba(15, 23, 42, 0.88);
       border: 1px solid var(--border-subtle);
       border-top: 1px solid var(--border-highlight);
       border-radius: var(--radius-lg);
@@ -301,6 +302,8 @@
       justify-content: space-between;
       backdrop-filter: blur(20px);
       box-shadow: var(--shadow-ambient);
+      gap: 16px;
+      flex-wrap: wrap;
     }
 
     .nav-left-group {
@@ -339,18 +342,57 @@
     .nav-right-group {
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* 講者 Slido 一鍵管理工具按鈕 */
+    .btn-tool-pill {
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #FDE68A;
+      font-size: 13.5px;
+      font-weight: 700;
+      padding: 9px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-tool-pill:hover {
+      background: rgba(245, 158, 11, 0.28);
+      color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+
+    .btn-tool-blue {
+      background: rgba(37, 99, 235, 0.18);
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #93C5FD;
+    }
+
+    .btn-tool-blue:hover {
+      background: rgba(37, 99, 235, 0.3);
+      color: #FFFFFF;
     }
 
     .mini-qr-box {
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.35);
       padding: 6px 12px;
       border-radius: 10px;
       border: 1px solid var(--border-subtle);
       cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mini-qr-box:hover {
+      border-color: var(--border-cyan);
     }
 
     .mini-qr-canvas {
@@ -385,11 +427,14 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 4px;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .filter-tabs-group {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .filter-pill-btn {
@@ -409,6 +454,12 @@
       border-color: #38BDF8;
       color: #FFFFFF;
       box-shadow: 0 2px 10px rgba(37, 99, 235, 0.4);
+    }
+
+    .filter-pill-btn.active.pill-archived {
+      background: #78350F;
+      border-color: #F59E0B;
+      color: #FEF3C7;
     }
 
     .wall-sync-text {
@@ -462,6 +513,12 @@
 
     .q-card-item.type-question {
       border-left: 4px solid var(--primary-cyan);
+    }
+
+    .q-card-item.type-archived {
+      border-left: 4px solid #64748B;
+      opacity: 0.85;
+      background: rgba(15, 23, 42, 0.55);
     }
 
     .q-card-item.glow-arrival {
@@ -521,6 +578,12 @@
       color: #FDE68A;
     }
 
+    .badge-archived-tag {
+      background: rgba(100, 116, 139, 0.25);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: #94A3B8;
+    }
+
     .author-title {
       font-size: 14.5px;
       font-weight: 700;
@@ -546,8 +609,72 @@
     .card-action-line {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      gap: 12px;
+      justify-content: space-between;
+      margin-top: 4px;
+    }
+
+    .card-actions-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-actions-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 單則封存與刪除按鈕 */
+    .btn-card-op {
+      border: none;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .btn-card-op:hover {
+      transform: scale(1.05);
+    }
+
+    .btn-op-archive {
+      color: #6EE7B7;
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-op-archive:hover {
+      background: rgba(16, 185, 129, 0.28);
+      color: #A7F3D0;
+    }
+
+    .btn-op-delete {
+      color: #FCA5A5;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-op-delete:hover {
+      background: rgba(239, 68, 68, 0.28);
+      color: #FECACA;
+    }
+
+    .btn-op-restore {
+      color: #93C5FD;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-op-restore:hover {
+      background: rgba(59, 130, 246, 0.3);
+      color: #BFDBFE;
     }
 
     .upvote-button {
@@ -844,28 +971,6 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* 隱藏的管理員後台按鈕 (?admin=1) */
-    #adminExportBar {
-      display: none;
-      position: relative;
-      z-index: 2;
-      max-width: 1360px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 0 24px 12px;
-      text-align: right;
-    }
-
-    .btn-export-pill {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: #94A3B8;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 11.5px;
-      cursor: pointer;
-    }
-
     @keyframes fadeIn {
       0% { opacity: 0; }
       100% { opacity: 1; }
@@ -910,7 +1015,7 @@
   </div>
 
   <!-- ========================================================================
-       LAYER 2: 大螢幕提問牆 (Slido 現場提問動態牆)
+       LAYER 2: 大螢幕提問牆 (Slido 現場提問動態牆 + 講者管理工具)
        ======================================================================== -->
   <div id="viewDesktopWall">
     <!-- 頂部 Slido 導航列 -->
@@ -923,6 +1028,16 @@
       </div>
 
       <div class="nav-right-group">
+        <!-- Slido 講者核心：一鍵封存全部 -->
+        <button type="button" class="btn-tool-pill" onclick="confirmArchiveAll()" title="一鍵封存目前所有提問，提問牆清空重置">
+          <span>📦</span> 一鍵封存全部
+        </button>
+
+        <!-- 匯出名單 -->
+        <button type="button" class="btn-tool-pill btn-tool-blue" onclick="exportDataToCsv()" title="匯出完整名單與 Email">
+          <span>📥</span> 匯出名單 (CSV)
+        </button>
+
         <!-- 角落迷你可掃 QR Code -->
         <div class="mini-qr-box" onclick="switchDesktopView('home')" title="點擊放大 QR Code">
           <div class="mini-qr-canvas" id="wallMiniQrContainer"></div>
@@ -941,6 +1056,7 @@
         <button type="button" class="filter-pill-btn" id="fBtnQ" onclick="setWallFilter('question')">現場提問 (<span id="countQ">0</span>)</button>
         <button type="button" class="filter-pill-btn" id="fBtnF" onclick="setWallFilter('feedback')">心得回饋 (<span id="countF">0</span>)</button>
         <button type="button" class="filter-pill-btn" id="fBtnHot" onclick="setWallFilter('hot')">🔥 最多認同</button>
+        <button type="button" class="filter-pill-btn" id="fBtnArchived" onclick="setWallFilter('archived')">📦 已封存 (<span id="countArchived">0</span>)</button>
       </div>
 
       <div class="wall-sync-text">
@@ -960,11 +1076,6 @@
       </div>
     </main>
   </div>
-
-  <!-- 後台匯出列 (?admin=1) -->
-  <aside id="adminExportBar">
-    <button class="btn-export-pill" onclick="exportDataToCsv()">📥 匯出提問與 Email 完整名單 (CSV)</button>
-  </aside>
 
   <!-- ========================================================================
        LAYER 3: 手機學生端 (掃描 QR Code 進入)
@@ -1001,9 +1112,9 @@
       </div>
 
       <div class="m-chips-line">
-        <button type="button" class="m-chip-btn" onclick="insertPromptQ('想請教老師在實務上的關鍵做法？')">💡 實務做法</button>
-        <button type="button" class="m-chip-btn" onclick="insertPromptQ('這個趨勢對我們未來會有什麼具體衝擊？')">📈 未來趨勢</button>
-        <button type="button" class="m-chip-btn" onclick="insertPromptQ('剛剛提到的案例細節想請教！')">🎯 案例細節</button>
+        <button type="button" class="m-chip-btn" onclick="insertPromptQ('想請教老師在智慧水務實務上的關鍵做法？')">💡 實務做法</button>
+        <button type="button" class="m-chip-btn" onclick="insertPromptQ('智慧水務科技對未來水資源管理的衝擊與展望？')">📈 未來展望</button>
+        <button type="button" class="m-chip-btn" onclick="insertPromptQ('剛剛提到的案例細節想請教老師！')">🎯 案例細節</button>
       </div>
 
       <form onsubmit="submitQuestion(event)">
@@ -1012,7 +1123,7 @@
             <label class="m-label" for="mqNick">您的稱呼或暱稱</label>
             <span class="m-hint">選填・可留空</span>
           </div>
-          <input class="m-input" type="text" id="mqNick" placeholder="例：小明 / 同學">
+          <input class="m-input" type="text" id="mqNick" placeholder="例：小明 / 水利系同學">
         </div>
 
         <div class="m-form-group">
@@ -1045,9 +1156,9 @@
       </div>
 
       <div class="m-chips-line">
-        <button type="button" class="m-chip-btn" onclick="insertPromptF('收穫滿滿，徹底打破我以前的盲點！')">🔥 收穫滿滿</button>
+        <button type="button" class="m-chip-btn" onclick="insertPromptF('收穫滿滿，對智慧水務的整體架構有了全新認識！')">🔥 收穫滿滿</button>
         <button type="button" class="m-chip-btn" onclick="insertPromptF('今天學到的第一性原理邏輯非常清晰！')">💡 邏輯清晰</button>
-        <button type="button" class="m-chip-btn" onclick="insertPromptF('演講內容太精彩了，期待後續分享！')">👏 感謝老師</button>
+        <button type="button" class="m-chip-btn" onclick="insertPromptF('演講內容太精彩了，非常受用！')">👏 感謝老師</button>
       </div>
 
       <form onsubmit="submitFeedback(event)">
@@ -1117,14 +1228,14 @@
     // 雲端活體資料庫端點
     const API_URL = "https://script.google.com/macros/s/AKfycbyprEwCXJpWGJK0-FBiDRm6_ODOT7PZagBgn7tb1w8vEjYki4tsvr90uKAyyEGoqC1EMA/exec";
 
-    let cachedList = [];
+    let cachedActiveList = [];
+    let cachedArchivedList = [];
     let currentFilter = 'all';
-    let localLikes = JSON.parse(localStorage.getItem('qa_likes_v2') || '{}');
+    let localLikes = JSON.parse(localStorage.getItem('qa_likes_v3') || '{}');
 
     window.addEventListener('DOMContentLoaded', () => {
       routeView();
       initQRCodes();
-      checkAdminParam();
       fetchStreamData();
       // 極速 2 秒自動同步！
       setInterval(fetchStreamData, 2000);
@@ -1207,16 +1318,8 @@
       });
     }
 
-    // 管理員後台判斷 (?admin=1)
-    function checkAdminParam() {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('admin') === '1' || urlParams.get('admin') === 'true') {
-        document.getElementById('adminExportBar').style.display = 'block';
-      }
-    }
-
     // ========================================================================
-    // 手機端表單與發送 (關鍵：text/plain;charset=utf-8 杜絕 CORS Preflight 阻擋！)
+    // 手機端表單與發送 (text/plain;charset=utf-8 完美穿透 CORS)
     // ========================================================================
     function submitQuestion(e) {
       e.preventDefault();
@@ -1229,12 +1332,14 @@
       btn.disabled = true;
       btn.innerHTML = '<span>⏳</span> 傳送上牆中...';
 
+      const nowIso = new Date().toISOString();
       const payload = {
         name: nick || "某位同學",
         email: "現場免填Email",
         category: "現場提問",
         rating: 5,
-        message: content
+        message: content,
+        timestamp: nowIso
       };
 
       // 樂觀立即更新本機
@@ -1261,12 +1366,14 @@
       btn.disabled = true;
       btn.innerHTML = '<span>⏳</span> 登記傳送中...';
 
+      const nowIso = new Date().toISOString();
       const payload = {
         name: nick || "心得聽眾",
         email: email,
         category: "心得回饋",
         rating: 5,
-        message: content
+        message: content,
+        timestamp: nowIso
       };
 
       // 樂觀立即更新本機
@@ -1281,7 +1388,6 @@
       });
     }
 
-    // 核心資料對接：使用 text/plain;charset=utf-8 完美繞過瀏覽器 OPTIONS 預檢阻擋！
     function postToGAS(payload, callback) {
       fetch(API_URL, {
         method: "POST",
@@ -1290,35 +1396,34 @@
       })
       .then(res => res.json())
       .then(() => {
-        callback();
+        if (callback) callback();
         fetchStreamData();
       })
       .catch(() => {
-        // 即使瀏覽器重定向策略報錯，GAS 已經成功收錄，執行成功回呼
-        callback();
+        if (callback) callback();
         fetchStreamData();
       });
     }
 
-    // 樂觀立即推入資料 (零延遲上牆感受)
     function optimisticAdd(payload) {
+      const nextId = cachedActiveList.length + cachedArchivedList.length + 1;
       const optimisticItem = {
-        id: cachedList.length + 1,
+        id: nextId,
         name: payload.name,
         email: payload.email,
         category: payload.category,
         message: payload.message,
         timeStr: new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit', hour12: false }),
-        timestamp: new Date().toISOString(),
+        timestamp: payload.timestamp || new Date().toISOString(),
         upvotes: 0,
+        archived: false,
         isNew: true
       };
-      cachedList.unshift(optimisticItem);
+      cachedActiveList.unshift(optimisticItem);
       renderWallCards();
       updateCounters();
     }
 
-    // 手機端三頁籤切換
     function switchMobileTab(tab) {
       const btnQ = document.getElementById('mTabBtnQ');
       const btnF = document.getElementById('mTabBtnF');
@@ -1378,7 +1483,7 @@
       document.getElementById('mTicketTitle').textContent = title;
       document.getElementById('mTicketDesc').innerText = desc;
 
-      const num = cachedList.length || 1;
+      const num = cachedActiveList.length + cachedArchivedList.length || 1;
       document.getElementById('mTicketBadge').textContent = num < 10 ? `#0${num}` : `#${num}`;
 
       ticket.style.display = 'block';
@@ -1397,19 +1502,23 @@
       fetch(API_URL)
         .then(res => res.json())
         .then(res => {
-          if (res && res.status === 'success' && Array.isArray(res.data)) {
-            processData(res.data);
+          if (res && res.status === 'success') {
+            processData(res.data || [], res.archived || []);
           }
         })
         .catch(() => {});
     }
 
-    function processData(rawList) {
-      // 依時間正序分配序號
-      const chrono = [...rawList].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
-      
-      const processed = chrono.map((item, idx) => {
-        const id = idx + 1;
+    function processData(activeRaw, archivedRaw) {
+      // 依全量時間正序分配序號
+      const allChronological = [...activeRaw, ...archivedRaw].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const idMap = {};
+      allChronological.forEach((item, idx) => {
+        idMap[item.timestamp] = idx + 1;
+      });
+
+      const activeProcessed = activeRaw.map(item => {
+        const id = idMap[item.timestamp] || 1;
         return {
           id: id,
           name: item.name || "同學",
@@ -1418,14 +1527,29 @@
           message: item.message || "",
           timeStr: formatClock(item.timestamp),
           timestamp: item.timestamp,
-          upvotes: (localLikes[id] || 0)
+          upvotes: (localLikes[id] || 0),
+          archived: false
         };
       });
 
-      // 最新在上
-      const reversed = [...processed].reverse();
-      const hasNew = cachedList.length > 0 && reversed.length > cachedList.length;
-      cachedList = reversed;
+      const archivedProcessed = archivedRaw.map(item => {
+        const id = idMap[item.timestamp] || 1;
+        return {
+          id: id,
+          name: item.name || "同學",
+          email: item.email || "",
+          category: item.category || "現場提問",
+          message: item.message || "",
+          timeStr: formatClock(item.timestamp),
+          timestamp: item.timestamp,
+          upvotes: (localLikes[id] || 0),
+          archived: true
+        };
+      });
+
+      const hasNew = cachedActiveList.length > 0 && activeProcessed.length > cachedActiveList.length;
+      cachedActiveList = activeProcessed;
+      cachedArchivedList = archivedProcessed;
 
       updateCounters();
       renderWallCards(hasNew);
@@ -1433,30 +1557,37 @@
     }
 
     function updateCounters() {
-      const total = cachedList.length;
-      const countQ = cachedList.filter(x => x.category !== '心得回饋').length;
-      const countF = cachedList.filter(x => x.category === '心得回饋').length;
+      const totalActive = cachedActiveList.length;
+      const totalArchived = cachedArchivedList.length;
+      const countQ = cachedActiveList.filter(x => x.category !== '心得回饋').length;
+      const countF = cachedActiveList.filter(x => x.category === '心得回饋').length;
 
-      document.getElementById('homeCounterDisplay').textContent = `${total} 則`;
-      document.getElementById('countAll').textContent = total;
+      document.getElementById('homeCounterDisplay').textContent = `${totalActive} 則`;
+      document.getElementById('countAll').textContent = totalActive;
       document.getElementById('countQ').textContent = countQ;
       document.getElementById('countF').textContent = countF;
+      document.getElementById('countArchived').textContent = totalArchived;
+
       const mWallCount = document.getElementById('mWallCount');
-      if (mWallCount) mWallCount.textContent = `${total} 則`;
+      if (mWallCount) mWallCount.textContent = `${totalActive} 則`;
     }
 
-    // 提問牆標籤篩選
+    // 提問牆標籤切換
     function setWallFilter(filter) {
       currentFilter = filter;
       document.getElementById('fBtnAll').className = 'filter-pill-btn' + (filter === 'all' ? ' active' : '');
       document.getElementById('fBtnQ').className = 'filter-pill-btn' + (filter === 'question' ? ' active' : '');
       document.getElementById('fBtnF').className = 'filter-pill-btn' + (filter === 'feedback' ? ' active' : '');
       document.getElementById('fBtnHot').className = 'filter-pill-btn' + (filter === 'hot' ? ' active' : '');
+      document.getElementById('fBtnArchived').className = 'filter-pill-btn' + (filter === 'archived' ? ' active pill-archived' : '');
       renderWallCards();
     }
 
     function getFilteredList() {
-      let list = [...cachedList];
+      if (currentFilter === 'archived') {
+        return [...cachedArchivedList];
+      }
+      let list = [...cachedActiveList];
       if (currentFilter === 'question') {
         list = list.filter(x => x.category !== '心得回饋');
       } else if (currentFilter === 'feedback') {
@@ -1467,18 +1598,84 @@
       return list;
     }
 
+    // ========================================================================
+    // Slido 講者核心：一鍵封存、單則封存、刪除與還原
+    // ========================================================================
+    function confirmArchiveAll() {
+      if (cachedActiveList.length === 0) {
+        alert('目前現場提問牆為空，無提問需要封存。');
+        return;
+      }
+      const ok = confirm(`確定要【一鍵封存所有現場提問 (${cachedActiveList.length} 則)】嗎？\n\n封存後提問牆將清空重置，所有提問與心得仍會妥善保存在「已封存」標籤內，資料絕不遺失。`);
+      if (!ok) return;
+
+      // 樂觀立即將所有活躍提問移入已封存
+      cachedArchivedList = [...cachedActiveList, ...cachedArchivedList];
+      cachedActiveList = [];
+      updateCounters();
+      renderWallCards();
+      renderMobileWall();
+
+      postToGAS({ action: "archive_all" });
+    }
+
+    function archiveQuestion(timestamp) {
+      const idx = cachedActiveList.findIndex(x => x.timestamp === timestamp);
+      if (idx !== -1) {
+        const item = cachedActiveList.splice(idx, 1)[0];
+        item.archived = true;
+        cachedArchivedList.unshift(item);
+        updateCounters();
+        renderWallCards();
+        renderMobileWall();
+
+        postToGAS({ action: "archive", timestamp: timestamp });
+      }
+    }
+
+    function restoreQuestion(timestamp) {
+      const idx = cachedArchivedList.findIndex(x => x.timestamp === timestamp);
+      if (idx !== -1) {
+        const item = cachedArchivedList.splice(idx, 1)[0];
+        item.archived = false;
+        cachedActiveList.unshift(item);
+        updateCounters();
+        renderWallCards();
+        renderMobileWall();
+
+        postToGAS({ action: "restore", timestamp: timestamp });
+      }
+    }
+
+    function deleteQuestion(timestamp) {
+      const ok = confirm("確定要徹底刪除此則留言嗎？");
+      if (!ok) return;
+
+      // 從 active 或 archived 中移除
+      cachedActiveList = cachedActiveList.filter(x => x.timestamp !== timestamp);
+      cachedArchivedList = cachedArchivedList.filter(x => x.timestamp !== timestamp);
+      updateCounters();
+      renderWallCards();
+      renderMobileWall();
+
+      postToGAS({ action: "delete", timestamp: timestamp });
+    }
+
     // 渲染大螢幕提問牆
     function renderWallCards(hasNewArrival = false) {
       const container = document.getElementById('wallCardsContainer');
       const list = getFilteredList();
 
       if (list.length === 0) {
+        const emptyMsg = currentFilter === 'archived' 
+          ? '目前沒有已封存的提問' 
+          : '目前尚無相關提問，手機掃描 QR Code 搶先發問！';
         container.innerHTML = `
           <div class="empty-prompt-state">
             <div style="font-size: 42px;">💭</div>
-            <div style="font-size: 18px; font-weight: 700; color: #E2E8F0;">目前尚無相關內容</div>
+            <div style="font-size: 18px; font-weight: 700; color: #E2E8F0;">${emptyMsg}</div>
             <div style="font-size: 13.5px; color: var(--text-dim);">
-              手機掃描 QR Code 搶先發問，問題將即時跳上此處！
+              所有動態將每 2 秒即時自動同步至此處。
             </div>
           </div>
         `;
@@ -1486,14 +1683,45 @@
       }
 
       let html = '';
+      const isArchiveTab = currentFilter === 'archived';
+
       list.forEach((item, idx) => {
         const isNew = (idx === 0 && hasNewArrival) ? 'glow-arrival' : '';
         const isFeedback = item.category === '心得回饋';
-        const cardClass = isFeedback ? 'type-feedback' : 'type-question';
-        const badgeClass = isFeedback ? 'badge-f' : 'badge-q';
-        const badgeLabel = isFeedback ? `🎁 心得 #${formatNum(item.id)}` : `💬 提問 #${formatNum(item.id)}`;
+        let cardClass = isFeedback ? 'type-feedback' : 'type-question';
+        let badgeClass = isFeedback ? 'badge-f' : 'badge-q';
+        let badgeLabel = isFeedback ? `🎁 心得 #${formatNum(item.id)}` : `💬 提問 #${formatNum(item.id)}`;
+
+        if (item.archived) {
+          cardClass += ' type-archived';
+          badgeClass = 'badge-archived-tag';
+          badgeLabel = `📦 已封存 #${formatNum(item.id)}`;
+        }
+
         const initial = (item.name && item.name.trim()) ? item.name.trim().slice(0, 1).toUpperCase() : '友';
         const liked = (localLikes[item.id] || 0) > 0;
+
+        // 管理按鈕組
+        let modButtons = '';
+        if (item.archived) {
+          modButtons = `
+            <button type="button" class="btn-card-op btn-op-restore" onclick="restoreQuestion('${item.timestamp}')" title="還原至提問牆">
+              <span>↺</span> 還原
+            </button>
+            <button type="button" class="btn-card-op btn-op-delete" onclick="deleteQuestion('${item.timestamp}')" title="徹底刪除">
+              <span>🗑️</span> 刪除
+            </button>
+          `;
+        } else {
+          modButtons = `
+            <button type="button" class="btn-card-op btn-op-archive" onclick="archiveQuestion('${item.timestamp}')" title="標記已解答並封存">
+              <span>✓</span> 封存
+            </button>
+            <button type="button" class="btn-card-op btn-op-delete" onclick="deleteQuestion('${item.timestamp}')" title="刪除此則">
+              <span>🗑️</span> 刪除
+            </button>
+          `;
+        }
 
         html += `
           <article class="q-card-item ${cardClass} ${isNew}">
@@ -1509,9 +1737,14 @@
             <div class="card-text-content">${escapeHtml(item.message)}</div>
 
             <div class="card-action-line">
-              <button type="button" class="upvote-button ${liked ? 'liked' : ''}" onclick="toggleLike(${item.id})">
-                <span>👍</span> 認同 <strong>${item.upvotes > 0 ? item.upvotes : ''}</strong>
-              </button>
+              <div class="card-actions-left">
+                ${modButtons}
+              </div>
+              <div class="card-actions-right">
+                <button type="button" class="upvote-button ${liked ? 'liked' : ''}" onclick="toggleLike(${item.id})">
+                  <span>👍</span> 認同 <strong>${item.upvotes > 0 ? item.upvotes : ''}</strong>
+                </button>
+              </div>
             </div>
           </article>
         `;
@@ -1525,7 +1758,7 @@
       const container = document.getElementById('mWallCardsContainer');
       if (!container) return;
 
-      if (cachedList.length === 0) {
+      if (cachedActiveList.length === 0) {
         container.innerHTML = `
           <div style="text-align:center; padding:30px 10px; color:var(--text-dim); font-size:13px;">
             尚無提問，點擊「我要提問」搶先發表！
@@ -1535,7 +1768,7 @@
       }
 
       let html = '';
-      cachedList.forEach(item => {
+      cachedActiveList.forEach(item => {
         const isFeedback = item.category === '心得回饋';
         const badgeLabel = isFeedback ? `🎁 心得 #${formatNum(item.id)}` : `💬 提問 #${formatNum(item.id)}`;
         const liked = (localLikes[item.id] || 0) > 0;
@@ -1558,13 +1791,11 @@
       container.innerHTML = html;
     }
 
-    // 點讚微互動
     function toggleLike(id) {
       localLikes[id] = (localLikes[id] || 0) + 1;
-      localStorage.setItem('qa_likes_v2', JSON.stringify(localLikes));
+      localStorage.setItem('qa_likes_v3', JSON.stringify(localLikes));
 
-      // 即時更新 cachedList
-      const target = cachedList.find(x => x.id === id);
+      const target = cachedActiveList.find(x => x.id === id) || cachedArchivedList.find(x => x.id === id);
       if (target) {
         target.upvotes = localLikes[id];
       }
@@ -1586,22 +1817,24 @@
       }
     }
 
-    // 匯出 CSV
+    // 匯出 CSV (包含活躍與封存完整名單)
     function exportDataToCsv() {
-      if (cachedList.length === 0) {
+      const allExport = [...cachedActiveList, ...cachedArchivedList].sort((a, b) => a.id - b.id);
+      if (allExport.length === 0) {
         alert('尚無資料可供匯出');
         return;
       }
-      let csv = "\uFEFF序號,類別,稱呼,Email,時間,內容\n";
-      [...cachedList].reverse().forEach(q => {
+      let csv = "\uFEFF序號,狀態,類別,稱呼,Email,時間,內容\n";
+      allExport.forEach(q => {
         const cleanMsg = '"' + q.message.replace(/"/g, '""').replace(/\n/g, ' ') + '"';
-        csv += `${q.id},"${q.category}","${q.name}","${q.email}","${q.timeStr}",${cleanMsg}\n`;
+        const statusText = q.archived ? "已封存" : "現場活躍";
+        csv += `${q.id},"${statusText}","${q.category}","${q.name}","${q.email}","${q.timeStr}",${cleanMsg}\n`;
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `中原大學智慧水務講堂_名單與提問_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `中原大學智慧水務講堂_完整名單_${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
     }
 
