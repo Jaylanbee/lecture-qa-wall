@@ -2,24 +2,48 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>主權講堂・現場即時提問</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>主權講堂・現場即時互動牆</title>
   
+  <!-- Google Fonts: Plus Jakarta Sans & Noto Sans TC -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <!-- QRCode.js 高清前端繪製函式庫 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
     :root {
-      --primary: #1E3A8A;
-      --primary-light: #3B82F6;
-      --accent: #F59E0B;
-      --success: #10B981;
-      --bg: #0B1120;
-      --card-bg: #1E293B;
-      --card-border: #334155;
-      --text: #F8FAFC;
+      --bg-base: #070A11;
+      --bg-surface: rgba(15, 23, 42, 0.75);
+      --bg-surface-elevated: rgba(30, 41, 59, 0.7);
+      --bg-input: rgba(11, 19, 38, 0.85);
+      
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-highlight: rgba(255, 255, 255, 0.16);
+      --border-cyan: rgba(56, 189, 248, 0.4);
+      --border-gold: rgba(245, 158, 11, 0.45);
+
+      --primary-cyan: #38BDF8;
+      --primary-blue: #2563EB;
+      --accent-gold: #F59E0B;
+      --accent-amber: #D97706;
+      --accent-emerald: #10B981;
+      
+      --text-pure: #FFFFFF;
+      --text-main: #F1F5F9;
       --text-muted: #94A3B8;
-      --radius: 14px;
+      --text-dim: #64748B;
+      
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 26px;
+
+      --shadow-ambient: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+      --shadow-glow-cyan: 0 0 35px rgba(56, 189, 248, 0.25);
+      --shadow-glow-gold: 0 0 35px rgba(245, 158, 11, 0.25);
     }
 
     * {
@@ -27,540 +51,1094 @@
       margin: 0;
       padding: 0;
       -webkit-tap-highlight-color: transparent;
+      font-family: 'Plus Jakarta Sans', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang TC", "Microsoft JhengHei", sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      line-height: 1.5;
+      background-color: var(--bg-base);
+      color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
+      position: relative;
     }
 
-    /* =========================================
-       1. 投影大螢幕模式 (大 QR Code + 即時提問牆)
-       ========================================= */
+    /* 頂級劇場級環境動態柔光網格 */
+    body::before {
+      content: "";
+      position: fixed;
+      top: -150px;
+      left: 10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(37, 99, 235, 0.15) 0%, rgba(56, 189, 248, 0.05) 50%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(60px);
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      bottom: -150px;
+      right: 10%;
+      width: 650px;
+      height: 650px;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.12) 0%, rgba(139, 92, 246, 0.06) 50%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(70px);
+    }
+
+    /* 背景極細點陣圖層 */
+    .bg-grid-pattern {
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ==========================================================================
+       VIEW A: 投影大螢幕模式 (極致大氣、遠距可讀、Apple Keynote 級展台)
+       ========================================================================== */
     #desktopWallView {
-      max-width: 1280px;
+      position: relative;
+      z-index: 1;
+      max-width: 1360px;
       width: 100%;
       margin: 0 auto;
-      padding: 24px 20px;
+      padding: 32px 28px;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 24px;
+      gap: 28px;
       flex: 1;
     }
 
-    /* 超大 QR Code 展台 */
-    .qr-hero-banner {
-      width: 100%;
-      background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
-      border: 1.5px solid var(--card-border);
-      border-radius: 20px;
-      padding: 28px 20px;
+    /* 頂部 Keynote Hero 展台 */
+    .hero-stage {
+      background: linear-gradient(135deg, rgba(26, 38, 62, 0.85) 0%, rgba(13, 20, 36, 0.9) 100%);
+      border: 1px solid var(--border-highlight);
+      border-top: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-xl);
+      padding: 32px 40px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 40px;
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
-      flex-wrap: wrap;
-      text-align: left;
+      justify-content: space-between;
+      gap: 36px;
+      box-shadow: var(--shadow-ambient), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      position: relative;
+      overflow: hidden;
     }
 
-    .qr-frame {
-      background: #FFFFFF;
-      padding: 14px;
-      border-radius: 18px;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 25px rgba(59, 130, 246, 0.25);
-      border: 3px solid #38BDF8;
-      display: inline-block;
+    .hero-stage::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), rgba(245, 158, 11, 0.6), transparent);
     }
 
-    #desktopQrContainer img, #desktopQrContainer canvas {
-      display: block;
-      width: 180px;
-      height: 180px;
-    }
-
-    .qr-text-info {
-      max-width: 520px;
-    }
-
-    .live-pill {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid #EF4444;
-      color: #F87171;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 10px;
-      border-radius: 20px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      letter-spacing: 1px;
-      margin-bottom: 10px;
-    }
-
-    .live-pill::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: #EF4444;
-      border-radius: 50%;
-    }
-
-    .qr-title {
-      font-size: 30px;
-      font-weight: 900;
-      letter-spacing: -0.5px;
-      color: #FFFFFF;
-      margin-bottom: 8px;
-      line-height: 1.3;
-    }
-
-    .qr-subtitle {
-      font-size: 15px;
-      color: var(--text-muted);
-      line-height: 1.6;
-    }
-
-    /* 即時提問牆本體 */
-    .wall-container {
-      width: 100%;
+    .hero-left-content {
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 14px;
     }
 
-    .wall-header-bar {
+    .status-badge-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 6px 4px;
-      color: var(--text-muted);
-      font-size: 13px;
-    }
-
-    .wall-counter {
-      font-size: 16px;
-      font-weight: 800;
-      color: #FFFFFF;
-    }
-
-    .wall-counter span {
-      color: #38BDF8;
-    }
-
-    .questions-list {
-      display: flex;
-      flex-direction: column;
       gap: 12px;
     }
 
-    .q-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 18px 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-      transition: all 0.2s ease;
-    }
-
-    .q-card.type-feedback {
-      border-left: 4px solid var(--accent);
-    }
-
-    .q-card.new-pulse {
-      animation: glowIn 1.2s ease-out;
-      border-color: #38BDF8;
-    }
-
-    @keyframes glowIn {
-      0% { transform: translateY(-4px); box-shadow: 0 0 20px rgba(56, 189, 248, 0.5); }
-      100% { transform: translateY(0); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2); }
-    }
-
-    .q-card-top {
-      display: flex;
+    .live-indicator {
+      display: inline-flex;
       align-items: center;
-      justify-content: space-between;
       gap: 8px;
+      background: rgba(239, 68, 68, 0.16);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 4px 12px;
+      border-radius: 30px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #FCA5A5;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
     }
 
-    .q-badge {
-      background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
-      color: #FFFFFF;
-      font-size: 13px;
-      font-weight: 900;
-      padding: 3px 10px;
-      border-radius: 6px;
+    .live-indicator-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #EF4444;
+      box-shadow: 0 0 10px #EF4444;
+      animation: pulseLive 1.8s infinite;
+    }
+
+    @keyframes pulseLive {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .topic-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-subtle);
+      color: #CBD5E1;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 20px;
       letter-spacing: 0.5px;
     }
 
-    .q-badge.badge-feedback {
-      background: linear-gradient(135deg, #B45309 0%, #F59E0B 100%);
+    .hero-title {
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      line-height: 1.25;
+      background: linear-gradient(135deg, #FFFFFF 20%, #E2E8F0 60%, #94A3B8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    .q-meta {
-      font-size: 12px;
-      color: var(--text-muted);
+    .hero-steps-grid {
+      display: flex;
+      gap: 14px;
+      margin-top: 4px;
+      flex-wrap: wrap;
     }
 
-    .q-body {
-      font-size: 18px;
-      color: #F8FAFC;
-      line-height: 1.6;
-      word-break: break-word;
-      white-space: pre-wrap;
+    .step-chip {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-subtle);
+      padding: 8px 16px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      color: #CBD5E1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .empty-prompt {
+    .step-chip strong {
+      color: #38BDF8;
+      font-weight: 800;
+    }
+
+    .step-chip.chip-gold strong {
+      color: #FBBF24;
+    }
+
+    /* QR Code 展座 */
+    .qr-pedestal {
+      background: linear-gradient(180deg, #FFFFFF 0%, #F1F5F9 100%);
+      padding: 14px;
+      border-radius: 22px;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), var(--shadow-glow-cyan);
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      position: relative;
+      flex-shrink: 0;
       text-align: center;
-      padding: 50px 20px;
-      background: var(--card-bg);
-      border: 1px dashed var(--card-border);
-      border-radius: var(--radius);
-      color: var(--text-muted);
-      font-size: 15px;
+      transition: transform 0.3s ease;
     }
 
-    /* =========================================
-       2. 手機提問端 (掃描 QR Code 進入)
-       ========================================= */
-    #mobileAppView {
-      display: none;
-      max-width: 540px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 16px;
+    .qr-pedestal:hover {
+      transform: scale(1.02);
+    }
+
+    #desktopQrContainer {
+      width: 175px;
+      height: 175px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #desktopQrContainer canvas, #desktopQrContainer img {
+      width: 175px !important;
+      height: 175px !important;
+      border-radius: 10px;
+    }
+
+    .qr-caption {
+      margin-top: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #0F172A;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    /* 提問牆標題資訊列 */
+    .wall-status-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px;
+    }
+
+    .wall-title-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .wall-main-heading {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .count-pill {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(37, 99, 235, 0.3) 100%);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38BDF8;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .wall-sync-indicator {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sync-radar-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      box-shadow: 0 0 10px #10B981;
+    }
+
+    /* 提問牆列表 */
+    .questions-feed {
+      display: flex;
       flex-direction: column;
       gap: 16px;
     }
 
-    /* 頂部選項按鈕：留下心得與 Email */
-    .feedback-banner-btn {
-      width: 100%;
-      background: linear-gradient(135deg, #78350F 0%, #B45309 50%, #D97706 100%);
-      border: 1.5px solid #F59E0B;
-      border-radius: 14px;
-      padding: 14px 16px;
-      color: #FFFFFF;
-      text-align: left;
-      cursor: pointer;
+    /* 提問卡片高階玻璃質感 */
+    .q-card-premium {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 1px solid var(--border-highlight);
+      border-radius: var(--radius-lg);
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      position: relative;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .q-card-premium:hover {
+      border-color: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.55);
+    }
+
+    .q-card-premium.card-feedback {
+      background: linear-gradient(135deg, rgba(30, 24, 16, 0.8) 0%, rgba(18, 14, 10, 0.85) 100%);
+      border-left: 4px solid var(--accent-gold);
+    }
+
+    .q-card-premium.card-question {
+      border-left: 4px solid var(--primary-cyan);
+    }
+
+    /* 新進問題光效波紋 */
+    .q-card-premium.arrival-glow {
+      animation: arrivalFlash 1.6s ease-out;
+    }
+
+    @keyframes arrivalFlash {
+      0% {
+        transform: translateY(-8px) scale(1.01);
+        border-color: #38BDF8;
+        box-shadow: 0 0 35px rgba(56, 189, 248, 0.6);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        border-color: var(--border-subtle);
+      }
+    }
+
+    .card-meta-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
-      transition: all 0.2s;
+      gap: 12px;
     }
 
-    .feedback-banner-btn:hover {
-      filter: brightness(1.08);
-      transform: translateY(-1px);
-    }
-
-    .feedback-banner-left {
+    .author-badge-group {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .feedback-banner-icon {
-      font-size: 24px;
-    }
-
-    .feedback-banner-title {
-      font-size: 14px;
-      font-weight: 800;
-      color: #FEF3C7;
-    }
-
-    .feedback-banner-sub {
-      font-size: 11px;
-      color: #FDE68A;
-      opacity: 0.9;
-    }
-
-    .feedback-banner-arrow {
-      font-size: 14px;
-      font-weight: 800;
-      color: #FEF3C7;
-      background: rgba(0, 0, 0, 0.2);
-      padding: 4px 8px;
-      border-radius: 8px;
-    }
-
-    /* 表單卡片 */
-    .box-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
-      padding: 22px 18px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-    }
-
-    .box-header {
-      margin-bottom: 16px;
-    }
-
-    .box-header h2 {
-      font-size: 18px;
+    .avatar-ring {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #1E293B 0%, #334155 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
       font-weight: 800;
       color: #FFFFFF;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .card-tag {
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tag-question {
+      background: rgba(37, 99, 235, 0.2);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #7DD3FC;
+    }
+
+    .tag-feedback {
+      background: rgba(217, 119, 6, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #FDE68A;
+    }
+
+    .author-name {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #E2E8F0;
+    }
+
+    .card-time {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card-text-body {
+      font-size: 21px;
+      font-weight: 500;
+      color: var(--text-pure);
+      line-height: 1.65;
+      letter-spacing: -0.2px;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    .card-footer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .upvote-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .upvote-pill:hover {
+      background: rgba(255, 255, 255, 0.12);
+      color: #FFFFFF;
+      transform: scale(1.05);
+    }
+
+    .upvote-pill.active {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #F87171;
+    }
+
+    .empty-state-card {
+      background: var(--bg-surface);
+      border: 1px dashed var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 60px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .empty-icon {
+      font-size: 42px;
+      opacity: 0.8;
+      filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.4));
+    }
+
+    .empty-text-main {
+      font-size: 18px;
+      font-weight: 700;
+      color: #E2E8F0;
+    }
+
+    .empty-text-sub {
+      font-size: 13.5px;
+      color: var(--text-dim);
+      max-width: 440px;
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       VIEW B: 手機學生端 (極致 Apple 原生質感、滑順、尊爵 VIP 卡)
+       ========================================================================== */
+    #mobileAppView {
+      display: none;
+      position: relative;
+      z-index: 1;
+      max-width: 520px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 16px 40px;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* 手機頂部微導航 */
+    .mobile-top-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 4px;
+    }
+
+    .mobile-brand {
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .box-header p {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .field-group {
-      margin-bottom: 14px;
-    }
-
-    .field-label {
-      display: block;
-      font-size: 12px;
-      font-weight: 700;
-      color: #E2E8F0;
-      margin-bottom: 5px;
-    }
-
-    .field-input, .field-textarea {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid var(--card-border);
-      border-radius: 10px;
-      background: #0F172A;
-      color: #FFFFFF;
+    .brand-icon-box {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2563EB 0%, #38BDF8 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 15px;
-      outline: none;
-      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
     }
 
-    .field-input:focus, .field-textarea:focus {
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-    }
-
-    .field-textarea {
-      min-height: 110px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-
-    .btn-submit {
-      width: 100%;
-      background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
-      border: none;
-      color: #FFFFFF;
-      padding: 13px;
-      border-radius: 10px;
+    .brand-name {
       font-size: 15px;
       font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.2px;
+    }
+
+    .mobile-live-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #6EE7B7;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* iOS 頂級雙切換膠囊 (Segmented Control) */
+    .segmented-control-container {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      padding: 4px;
+      display: flex;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      backdrop-filter: blur(16px);
+    }
+
+    .seg-tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 700;
+      border-radius: 10px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
-      transition: all 0.2s;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      z-index: 1;
     }
 
-    .btn-submit:hover:not(:disabled) {
-      filter: brightness(1.1);
+    .seg-tab-btn.active {
+      color: #FFFFFF;
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(51, 65, 85, 0.8) 100%);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.12);
     }
 
-    .btn-submit:disabled {
+    .seg-tab-btn.active.gold-mode {
+      color: #FEF3C7;
+      background: linear-gradient(135deg, rgba(120, 53, 15, 0.85) 0%, rgba(180, 83, 9, 0.85) 100%);
+      box-shadow: 0 2px 12px rgba(245, 158, 11, 0.3), 0 0 0 1px rgba(245, 158, 11, 0.35);
+    }
+
+    /* 手機輸入主卡片 */
+    .mobile-card-surface {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-top: 1px solid var(--border-highlight);
+      border-radius: var(--radius-lg);
+      padding: 22px 18px;
+      box-shadow: var(--shadow-ambient);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .tab-header-box {
+      margin-bottom: 18px;
+    }
+
+    .tab-title-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .tab-main-title {
+      font-size: 19px;
+      font-weight: 800;
+      color: #FFFFFF;
+      letter-spacing: -0.3px;
+    }
+
+    .tab-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* 快捷靈感標籤 (Chips) */
+    .quick-chips-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      margin-bottom: 14px;
+      scrollbar-width: none;
+    }
+
+    .quick-chips-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .chip-action-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #CBD5E1;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 11px;
+      border-radius: 20px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .chip-action-btn:hover, .chip-action-btn:active {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.4);
+      color: #38BDF8;
+    }
+
+    /* 表單元件精修 */
+    .app-field-group {
+      margin-bottom: 16px;
+    }
+
+    .app-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .app-field-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #E2E8F0;
+    }
+
+    .app-field-hint {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .app-input, .app-textarea {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 13px 15px;
+      font-size: 15px;
+      color: #FFFFFF;
+      outline: none;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+    }
+
+    .app-input:focus, .app-textarea:focus {
+      border-color: #38BDF8;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(56, 189, 248, 0.2);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .app-textarea {
+      min-height: 115px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .char-count-text {
+      text-align: right;
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 5px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 尊爵按鈕樣式 */
+    .btn-action-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #38BDF8 100%);
+      border: none;
+      color: #FFFFFF;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 15.5px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-primary:active:not(:disabled) {
+      transform: scale(0.985);
+      filter: brightness(0.95);
+    }
+
+    .btn-action-primary:disabled {
       opacity: 0.6;
       cursor: not-allowed;
     }
 
-    .btn-submit-gold {
-      background: linear-gradient(135deg, #B45309 0%, #D97706 100%);
-      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.35);
+    .btn-action-gold {
+      background: linear-gradient(135deg, #B45309 0%, #D97706 50%, #F59E0B 100%);
+      box-shadow: 0 6px 20px rgba(217, 119, 6, 0.45);
     }
 
-    /* 提交成功反饋 */
-    .success-alert {
-      display: none;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1.5px solid var(--success);
-      border-radius: 12px;
-      padding: 20px;
+    /* 底部引導切換條 */
+    .switch-nudge-bar {
+      margin-top: 14px;
       text-align: center;
-      margin-bottom: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
     }
 
-    .success-id-num {
+    .switch-nudge-link {
+      color: #38BDF8;
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .switch-nudge-link.gold-link {
+      color: #FBBF24;
+    }
+
+    /* 數位 VIP 登錄票卡 (成功狀態) */
+    .ticket-confirmation-card {
+      display: none;
+      background: linear-gradient(145deg, #0F172A 0%, #1E293B 100%);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-xl);
+      padding: 32px 24px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--shadow-ambient), 0 0 30px rgba(16, 185, 129, 0.2);
+      animation: popIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    .ticket-confirmation-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #10B981, #38BDF8, #F59E0B);
+    }
+
+    .ticket-success-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.18);
+      border: 2px solid #10B981;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #34D399;
+      margin-bottom: 14px;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .ticket-pass-badge {
       display: inline-block;
-      background: var(--primary);
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
       color: #FFFFFF;
-      font-size: 22px;
+      font-size: 24px;
       font-weight: 900;
-      padding: 4px 18px;
-      border-radius: 20px;
-      margin: 8px 0 10px;
+      padding: 6px 24px;
+      border-radius: 30px;
+      margin: 12px 0 16px;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+      font-variant-numeric: tabular-nums;
     }
 
-    /* 隱藏的後台管理工具 (按網址 ?admin=1 或隱藏點擊開啟) */
+    /* 隱藏的後台管理工具 (?admin=1) */
     #adminBar {
       display: none;
-      max-width: 1280px;
+      position: relative;
+      z-index: 2;
+      max-width: 1360px;
       width: 100%;
       margin: 0 auto;
-      padding: 0 20px 10px;
+      padding: 0 28px 12px;
       text-align: right;
     }
 
-    .btn-admin {
-      background: rgba(255, 255, 255, 0.08);
+    .btn-admin-pill {
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: #94A3B8;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 11px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-admin-pill:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #FFFFFF;
+    }
+
+    /* 響應式微調 */
+    @media (max-width: 900px) {
+      .hero-stage {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 28px 20px;
+      }
+      .hero-left-content {
+        align-items: center;
+      }
+      .hero-title {
+        font-size: 28px;
+      }
+      .hero-steps-grid {
+        justify-content: center;
+      }
+      .card-text-body {
+        font-size: 18px;
+      }
     }
   </style>
 </head>
 <body>
 
+  <!-- 背景精緻微網格圖層 -->
+  <div class="bg-grid-pattern"></div>
+
   <!-- ==============================================================
-       VIEW A: 投影大螢幕模式 (大大的 QR Code + 即時提問牆)
+       VIEW A: 投影大螢幕模式 (Apple Keynote 級現場提問展台)
        ============================================================== -->
   <div id="desktopWallView">
-    <!-- 頂部超大 QR Code 展台 -->
-    <div class="qr-hero-banner">
-      <div class="qr-frame">
+    
+    <!-- 頂部榮耀 Hero 展台 -->
+    <header class="hero-stage">
+      <div class="hero-left-content">
+        <div class="status-badge-row">
+          <div class="live-indicator">
+            <span class="live-indicator-dot"></span>
+            LIVE 現場連線中
+          </div>
+          <div class="topic-pill">逢甲大學通識講堂 ✕ 即時互動</div>
+        </div>
+
+        <h1 class="hero-title">掃描 QR Code 參與現場互動</h1>
+
+        <div class="hero-steps-grid">
+          <div class="step-chip">
+            <strong>01</strong> 手機相機直接掃描右側條碼
+          </div>
+          <div class="step-chip">
+            <strong>02</strong> 免註冊・提問秒登上現場大螢幕
+          </div>
+          <div class="step-chip chip-gold">
+            <strong>03</strong> 留下心得感想 ✕ 登記領取專屬講義筆記
+          </div>
+        </div>
+      </div>
+
+      <!-- 右側高清純淨 QR Code 展台 -->
+      <div class="qr-pedestal">
         <div id="desktopQrContainer"></div>
+        <div class="qr-caption">
+          <span>📱</span> 相機對準直接發問
+        </div>
       </div>
-      <div class="qr-text-info">
-        <div class="live-pill">LIVE Q&A</div>
-        <h1 class="qr-title">掃描 QR Code 現場提問</h1>
-        <p class="qr-subtitle">
-          📱 手機相機直接掃描即可發問。<br>
-          🎁 點擊畫面最上方按鈕，留下心得與 Email 即可領取本次演講專屬筆記！
-        </p>
+    </header>
+
+    <!-- 提問動態資訊列 -->
+    <div class="wall-status-bar">
+      <div class="wall-title-group">
+        <h2 class="wall-main-heading">
+          即時動態提問牆
+        </h2>
+        <span class="count-pill" id="totalQuestionsCount">0 則提問</span>
+      </div>
+      <div class="wall-sync-indicator">
+        <span class="sync-radar-dot"></span>
+        每 4 秒自動同步最新動態
       </div>
     </div>
 
-    <!-- 即時提問牆列表 -->
-    <div class="wall-container">
-      <div class="wall-header-bar">
-        <div class="wall-counter">
-          現場即時提問 (<span id="totalQuestionsCount">0</span>)
-        </div>
-        <div>● 即時同步中 (每 4 秒自動更新)</div>
-      </div>
-
-      <div class="questions-list" id="wallQuestionsList">
-        <div class="empty-prompt">
-          💭 目前現場尚無提問，拿起手機掃描上方 QR Code 搶先發問吧！
+    <!-- 提問卡片主串流列表 -->
+    <main class="questions-feed" id="wallQuestionsList">
+      <div class="empty-state-card">
+        <div class="empty-icon">💭</div>
+        <div class="empty-text-main">現場連線已準備就緒，尚無提問</div>
+        <div class="empty-text-sub">
+          拿起手機對準上方 QR Code，搶先提出您的第一個問題或心得！
         </div>
       </div>
-    </div>
+    </main>
   </div>
 
-  <!-- 後台專屬按鈕 (僅在網址帶有 ?admin=1 時顯示，大螢幕預設絕對乾淨隱藏) -->
-  <div id="adminBar">
-    <button class="btn-admin" onclick="exportDataToCsv()">📥 匯出提問與 Email 完整名單 (CSV)</button>
-  </div>
+  <!-- 後台專屬按鈕 (僅在網址帶有 ?admin=1 時顯示，前台保證 100% 純淨) -->
+  <aside id="adminBar">
+    <button class="btn-admin-pill" onclick="exportDataToCsv()">📥 匯出提問與 Email 完整名單 (CSV)</button>
+  </aside>
 
   <!-- ==============================================================
-       VIEW B: 手機提問端 (學生手機掃描 QR Code 進入)
+       VIEW B: 手機學生端 (iOS 原生感極簡互動系統)
        ============================================================== -->
   <div id="mobileAppView">
 
-    <!-- 頂部清晰選項：留下心得感想與 Email 領講義 -->
-    <div class="feedback-banner-btn" id="btnOpenFeedback" onclick="toggleFeedbackCard()">
-      <div class="feedback-banner-left">
-        <span class="feedback-banner-icon">🎁</span>
-        <div>
-          <div class="feedback-banner-title">留下心得感想 ＆ 領取演講專屬筆記</div>
-          <div class="feedback-banner-sub">演講結束後將發送資料至您的 Email</div>
-        </div>
+    <!-- 手機頂部微導航 -->
+    <header class="mobile-top-nav">
+      <div class="mobile-brand">
+        <div class="brand-icon-box">🎙️</div>
+        <div class="brand-name">現場講堂互動</div>
       </div>
-      <span class="feedback-banner-arrow" id="bannerArrow">點此填寫 ➔</span>
-    </div>
+      <div class="mobile-live-status">
+        ● 連線中
+      </div>
+    </header>
 
-    <!-- 1. 現場提問表單 (預設主介面：極致簡約、秒提問) -->
-    <div class="box-card" id="cardQuickQuestion">
-      <div class="box-header">
-        <h2>💬 現場即時提問</h2>
-        <p>直接輸入您的問題，送出後將即時呈現在現場大螢幕上。</p>
+    <!-- iOS 頂級雙切換膠囊 (現場提問 / 留心得領講義) -->
+    <nav class="segmented-control-container">
+      <button class="seg-tab-btn active" id="tabBtnQuestion" onclick="switchMobileTab('question')">
+        <span>💬</span> 現場即時提問
+      </button>
+      <button class="seg-tab-btn" id="tabBtnFeedback" onclick="switchMobileTab('feedback')">
+        <span>🎁</span> 留心得領筆記
+      </button>
+    </nav>
+
+    <!-- TAB 1: 現場即時提問 (0阻力、秒上牆) -->
+    <section class="mobile-card-surface" id="panelQuestion">
+      <div class="tab-header-box">
+        <div class="tab-title-line">
+          <h2 class="tab-main-title">💬 現場即時發問</h2>
+        </div>
+        <p class="tab-desc">送出後將即時跳上講堂大螢幕，主講人可現場為您解答。</p>
+      </div>
+
+      <!-- 快捷靈感標籤 -->
+      <div class="quick-chips-row">
+        <button type="button" class="chip-action-btn" onclick="insertChipPrompt('想請教老師在實務上的關鍵做法？')">💡 實務做法</button>
+        <button type="button" class="chip-action-btn" onclick="insertChipPrompt('這個觀念在未來的發展趨勢會如何？')">📈 未來趨勢</button>
+        <button type="button" class="chip-action-btn" onclick="insertChipPrompt('剛才提到的案例細節想更深入了解！')">🎯 案例深入</button>
       </div>
 
       <form id="formQuestion" onsubmit="submitQuickQuestion(event)">
-        <div class="field-group">
-          <label class="field-label" for="qNick">您的稱呼或暱稱（選填）</label>
-          <input class="field-input" type="text" id="qNick" placeholder="例：小明 / 同學 (未填則顯示匿名)">
+        <div class="app-field-group">
+          <div class="app-label-row">
+            <label class="app-field-label" for="qNick">您的稱呼或暱稱</label>
+            <span class="app-field-hint">選填・可留空或匿名</span>
+          </div>
+          <input class="app-input" type="text" id="qNick" placeholder="例：小明 / 經管所同學">
         </div>
 
-        <div class="field-group">
-          <label class="field-label" for="qContent">您的問題內容 <span style="color:#EF4444;">*</span></label>
-          <textarea class="field-textarea" id="qContent" required placeholder="請在此具體寫下您想問老師的問題..."></textarea>
+        <div class="app-field-group">
+          <div class="app-label-row">
+            <label class="app-field-label" for="qContent">您的提問內容 <span style="color:#EF4444;">*</span></label>
+            <span class="app-field-hint">必填</span>
+          </div>
+          <textarea class="app-textarea" id="qContent" required placeholder="請在此具體寫下您想請教老師的問題..." oninput="updateCharCount('qContent', 'qCount', 300)"></textarea>
+          <div class="char-count-text"><span id="qCount">0</span> / 300 字</div>
         </div>
 
-        <button type="submit" class="btn-submit" id="btnSubmitQ">
-          🚀 送出問題至大螢幕
+        <button type="submit" class="btn-action-primary" id="btnSubmitQ">
+          <span>🚀</span> 送出問題至大螢幕
         </button>
-      </form>
-    </div>
 
-    <!-- 2. 心得感想與 Email 領取專屬講義卡片 (點擊頂部選項後展開) -->
-    <div class="box-card" id="cardFeedbackEmail" style="display: none; border-color: #F59E0B;">
-      <div class="box-header">
-        <h2 style="color: #FBBF24;">🎁 留下心得感想 ✕ 登記領取筆記</h2>
-        <p>演講結束後，主講人將依據您留下的信箱發送本場演講精華筆記資料！</p>
+        <div class="switch-nudge-bar">
+          想要本次演講的專屬筆記？
+          <span class="switch-nudge-link gold-link" onclick="switchMobileTab('feedback')">切換至留下心得 ➔</span>
+        </div>
+      </form>
+    </section>
+
+    <!-- TAB 2: 心得感想 ✕ 登記 Email 領專屬講義 -->
+    <section class="mobile-card-surface" id="panelFeedback" style="display: none; border-color: var(--border-gold);">
+      <div class="tab-header-box">
+        <div class="tab-title-line">
+          <h2 class="tab-main-title" style="color: #FBBF24;">🎁 留下心得感想 ✕ 領取筆記</h2>
+        </div>
+        <p class="tab-desc">演講結束後，主講人將依據您留下的信箱發送本場演講精華筆記資料！</p>
+      </div>
+
+      <!-- 快捷心得靈感 -->
+      <div class="quick-chips-row">
+        <button type="button" class="chip-action-btn" onclick="insertFeedbackPrompt('收穫滿滿，徹底打破我以前的既定盲點！')">🔥 收穫滿滿</button>
+        <button type="button" class="chip-action-btn" onclick="insertFeedbackPrompt('今天學到的第一性原理架構非常清晰有啟發！')">💡 架構清晰</button>
+        <button type="button" class="chip-action-btn" onclick="insertFeedbackPrompt('非常精彩的一場分享，期待後續系列內容！')">👏 感謝老師</button>
       </div>
 
       <form id="formFeedback" onsubmit="submitFeedbackWithEmail(event)">
-        <div class="field-group">
-          <label class="field-label" for="fNick">您的稱呼或暱稱（選填）</label>
-          <input class="field-input" type="text" id="fNick" placeholder="例：王同學 / 經管所">
+        <div class="app-field-group">
+          <div class="app-label-row">
+            <label class="app-field-label" for="fNick">您的稱呼或暱稱</label>
+            <span class="app-field-hint">選填</span>
+          </div>
+          <input class="app-input" type="text" id="fNick" placeholder="例：王同學 / 聽眾">
         </div>
 
-        <div class="field-group">
-          <label class="field-label" for="fContent">聽講心得或回饋感想 <span style="color:#EF4444;">*</span></label>
-          <textarea class="field-textarea" id="fContent" required placeholder="寫下這場演講帶給您最有啟發的一句話、觀念或收穫..."></textarea>
+        <div class="app-field-group">
+          <div class="app-label-row">
+            <label class="app-field-label" for="fContent">聽講心得或收穫感悟 <span style="color:#EF4444;">*</span></label>
+            <span class="app-field-hint">必填</span>
+          </div>
+          <textarea class="app-textarea" id="fContent" required placeholder="寫下這場演講帶給您最有啟發的一個觀念、金句或領悟..." oninput="updateCharCount('fContent', 'fCount', 500)"></textarea>
+          <div class="char-count-text"><span id="fCount">0</span> / 500 字</div>
         </div>
 
-        <div class="field-group">
-          <label class="field-label" for="fEmail">您的 Email 信箱（收件專用）<span style="color:#EF4444;">*</span></label>
-          <input class="field-input" type="email" id="fEmail" required placeholder="your.name@example.com">
+        <div class="app-field-group">
+          <div class="app-label-row">
+            <label class="app-field-label" for="fEmail">您的 Email 信箱（收件專用）<span style="color:#EF4444;">*</span></label>
+            <span class="app-field-hint">演講結束後資料寄送處</span>
+          </div>
+          <input class="app-input" type="email" id="fEmail" required placeholder="your.name@example.com">
         </div>
 
-        <div style="font-size:11px; color:#6EE7B7; margin-bottom:14px;">
-          🔒 個資保護：您的信箱僅用於資料回贈，絕不會公開於提問牆上。
+        <div style="font-size:11.5px; color:#6EE7B7; margin-bottom:16px; display:flex; align-items:center; gap:6px;">
+          <span>🔒</span> 個資保密承諾：Email 僅供專屬資料寄送，絕不公開於提問牆上。
         </div>
 
-        <button type="submit" class="btn-submit btn-submit-gold" id="btnSubmitF">
-          🎁 登記並確認領取資料
+        <button type="submit" class="btn-action-primary btn-action-gold" id="btnSubmitF">
+          <span>🎁</span> 登記並確認領取資料
         </button>
-      </form>
-    </div>
 
-    <!-- 提交成功提示卡片 -->
-    <div class="success-alert" id="mobileSuccessBox">
-      <div style="font-size:36px; margin-bottom:6px;">🎉</div>
-      <h3 style="font-size:18px; font-weight:800; color:#FFFFFF;" id="successMsgTitle">送出成功！</h3>
-      <div style="font-size:13px; color:var(--text-muted);">您的登錄序號為</div>
-      <div class="success-id-num" id="successIdBadge">#1</div>
-      <p style="font-size:13px; color:#E2E8F0; line-height:1.5;" id="successMsgDesc">
-        您的內容已即時同步到大螢幕提問牆！
+        <div class="switch-nudge-bar">
+          只是想問問題？
+          <span class="switch-nudge-link" onclick="switchMobileTab('question')">切換回即時提問 ➔</span>
+        </div>
+      </form>
+    </section>
+
+    <!-- 數位 VIP 憑證票卡 (送出成功反饋) -->
+    <div class="ticket-confirmation-card" id="mobileTicketSuccess">
+      <div class="ticket-success-icon">✓</div>
+      <h3 style="font-size: 20px; font-weight: 800; color: #FFFFFF;" id="ticketMsgTitle">已成功登錄！</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="ticketMsgSubtitle">
+        您的登錄序號為
       </p>
-      <button class="btn-submit" style="margin-top:14px; background:#334155;" onclick="resetMobileForm()">
+      
+      <div class="ticket-pass-badge" id="ticketIdNumber">#01</div>
+
+      <p style="font-size: 13.5px; color: #E2E8F0; line-height: 1.6; max-width: 320px; margin: 0 auto;" id="ticketMsgDesc">
+        內容已即時同步到大螢幕提問牆！
+      </p>
+
+      <button type="button" class="btn-action-primary" style="margin-top: 22px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);" onclick="resetMobileTicket()">
         繼續發送下一則 ➔
       </button>
     </div>
@@ -568,11 +1146,11 @@
   </div>
 
   <script>
-    // 雲端 Google Apps Script 後台端點
+    // 雲端 Google Apps Script 活體後端
     const API_URL = "https://script.google.com/macros/s/AKfycbyprEwCXJpWGJK0-FBiDRm6_ODOT7PZagBgn7tb1w8vEjYki4tsvr90uKAyyEGoqC1EMA/exec";
 
     let cachedData = [];
-    let isFeedbackOpen = false;
+    let localUpvotes = JSON.parse(localStorage.getItem('qa_upvotes') || '{}');
 
     window.addEventListener('DOMContentLoaded', () => {
       routeDeviceView();
@@ -582,7 +1160,7 @@
       setInterval(fetchStreamData, 4000); // 每 4 秒自動同步
     });
 
-    // 依據設備與網址判斷顯示「大螢幕提問牆」或「手機提問端」
+    // 依據設備與網址決定「大螢幕提問牆」或「手機學生端」
     function routeDeviceView() {
       const urlParams = new URLSearchParams(window.location.search);
       const isMobile = window.innerWidth <= 768 || urlParams.get('view') === 'ask';
@@ -596,7 +1174,7 @@
       }
     }
 
-    // 產生大螢幕專用 QR Code (掃碼直達手機端 ?view=ask)
+    // 產生大螢幕專用高清 QR Code (直連 ?view=ask)
     function initDesktopQr() {
       const baseUrl = window.location.href.split('?')[0].split('#')[0];
       const targetUrl = baseUrl + "?view=ask";
@@ -606,15 +1184,15 @@
 
       new QRCode(container, {
         text: targetUrl,
-        width: 180,
-        height: 180,
-        colorDark: "#0F172A",
+        width: 175,
+        height: 175,
+        colorDark: "#0B1120",
         colorLight: "#FFFFFF",
         correctLevel: QRCode.CorrectLevel.H
       });
     }
 
-    // 檢查管理者後台參數 (?admin=1 顯示匯出名單按鈕)
+    // 後台管理參數勾稽 (?admin=1 顯示匯出名單)
     function checkAdminParam() {
       const urlParams = new URLSearchParams(window.location.search);
       if (urlParams.get('admin') === '1' || urlParams.get('admin') === 'true') {
@@ -622,23 +1200,54 @@
       }
     }
 
-    // 手機端：切換「留下心得感想與 Email」卡片
-    function toggleFeedbackCard() {
-      isFeedbackOpen = !isFeedbackOpen;
-      const cardFeedback = document.getElementById('cardFeedbackEmail');
-      const arrow = document.getElementById('bannerArrow');
+    // 手機端：切換分頁 (現場提問 vs 留心得領講義)
+    function switchMobileTab(tab) {
+      const btnQ = document.getElementById('tabBtnQuestion');
+      const btnF = document.getElementById('tabBtnFeedback');
+      const panelQ = document.getElementById('panelQuestion');
+      const panelF = document.getElementById('panelFeedback');
 
-      if (isFeedbackOpen) {
-        cardFeedback.style.display = 'block';
-        arrow.textContent = '▲ 收起';
-        cardFeedback.scrollIntoView({ behavior: 'smooth' });
+      if (tab === 'question') {
+        btnQ.className = 'seg-tab-btn active';
+        btnF.className = 'seg-tab-btn';
+        panelQ.style.display = 'block';
+        panelF.style.display = 'none';
       } else {
-        cardFeedback.style.display = 'none';
-        arrow.textContent = '點此填寫 ➔';
+        btnQ.className = 'seg-tab-btn';
+        btnF.className = 'seg-tab-btn active gold-mode';
+        panelQ.style.display = 'none';
+        panelF.style.display = 'block';
       }
     }
 
-    // 手機端 1：送出快速問題 (免填 Email，0 阻力)
+    // 快捷靈感標籤填入
+    function insertChipPrompt(text) {
+      const textarea = document.getElementById('qContent');
+      textarea.value = text;
+      updateCharCount('qContent', 'qCount', 300);
+      textarea.focus();
+    }
+
+    function insertFeedbackPrompt(text) {
+      const textarea = document.getElementById('fContent');
+      textarea.value = text;
+      updateCharCount('fContent', 'fCount', 500);
+      textarea.focus();
+    }
+
+    // 字數計算
+    function updateCharCount(inputId, countId, maxLimit) {
+      const input = document.getElementById(inputId);
+      const countEl = document.getElementById(countId);
+      if (input && countEl) {
+        if (input.value.length > maxLimit) {
+          input.value = input.value.slice(0, maxLimit);
+        }
+        countEl.textContent = input.value.length;
+      }
+    }
+
+    // 手機端 1：送出現場提問 (0 門檻秒送)
     function submitQuickQuestion(e) {
       e.preventDefault();
       const nick = document.getElementById('qNick').value.trim();
@@ -648,7 +1257,7 @@
 
       const btn = document.getElementById('btnSubmitQ');
       btn.disabled = true;
-      btn.textContent = '⏳ 送出中...';
+      btn.innerHTML = '<span>⏳</span> 傳送上牆中...';
 
       const payload = {
         name: nick || "某位同學",
@@ -660,13 +1269,14 @@
 
       sendToCloud(payload, () => {
         btn.disabled = false;
-        btn.textContent = '🚀 送出問題至大螢幕';
+        btn.innerHTML = '<span>🚀</span> 送出問題至大螢幕';
         document.getElementById('qContent').value = '';
-        showMobileSuccess("提問已發布！", "您的問題已即時跳上現場大螢幕！");
+        updateCharCount('qContent', 'qCount', 300);
+        showMobileTicket("提問已成功發布！", "您的問題已即時跳上講堂大螢幕！", "現場提問");
       });
     }
 
-    // 手機端 2：送出心得感想與 Email 領取講義
+    // 手機端 2：送出心得感想與 Email 領取專屬講義
     function submitFeedbackWithEmail(e) {
       e.preventDefault();
       const nick = document.getElementById('fNick').value.trim();
@@ -677,10 +1287,10 @@
 
       const btn = document.getElementById('btnSubmitF');
       btn.disabled = true;
-      btn.textContent = '⏳ 登記傳送中...';
+      btn.innerHTML = '<span>⏳</span> 登記傳送中...';
 
       const payload = {
-        name: nick || "心得登記聽眾",
+        name: nick || "心得聽眾",
         email: email,
         category: "心得回饋",
         rating: 5,
@@ -689,14 +1299,14 @@
 
       sendToCloud(payload, () => {
         btn.disabled = false;
-        btn.textContent = '🎁 登記並確認領取資料';
+        btn.innerHTML = '<span>🎁</span> 登記並確認領取資料';
         document.getElementById('fContent').value = '';
-        showMobileSuccess("心得已登錄！", "演講結束後，專屬講義資料將寄發至您的 Email！");
-        toggleFeedbackCard(); // 收起表單
+        updateCharCount('fContent', 'fCount', 500);
+        showMobileTicket("心得已成功登錄！", `演講結束後，專屬講義資料將寄送至：\n${email}`, "心得登記");
       });
     }
 
-    // 發送資料至雲端
+    // 雲端資料對接
     function sendToCloud(payload, callback) {
       fetch(API_URL, {
         method: "POST",
@@ -714,21 +1324,28 @@
       });
     }
 
-    function showMobileSuccess(title, desc) {
-      const box = document.getElementById('mobileSuccessBox');
-      document.getElementById('successMsgTitle').textContent = title;
-      document.getElementById('successMsgDesc').textContent = desc;
+    // 顯示數位 VIP 憑證票卡
+    function showMobileTicket(title, desc, type) {
+      const ticket = document.getElementById('mobileTicketSuccess');
+      document.getElementById('ticketMsgTitle').textContent = title;
+      document.getElementById('ticketMsgDesc').innerText = desc;
+      
       const nextId = cachedData.length + 1;
-      document.getElementById('successIdBadge').textContent = `#${nextId}`;
-      box.style.display = 'block';
-      box.scrollIntoView({ behavior: 'smooth' });
+      const formattedId = nextId < 10 ? `#0${nextId}` : `#${nextId}`;
+      document.getElementById('ticketIdNumber').textContent = formattedId;
+
+      document.getElementById('panelQuestion').style.display = 'none';
+      document.getElementById('panelFeedback').style.display = 'none';
+      ticket.style.display = 'block';
+      ticket.scrollIntoView({ behavior: 'smooth' });
     }
 
-    function resetMobileForm() {
-      document.getElementById('mobileSuccessBox').style.display = 'none';
+    function resetMobileTicket() {
+      document.getElementById('mobileTicketSuccess').style.display = 'none';
+      switchMobileTab('question');
     }
 
-    // 從 Google Apps Script 抓取問題並更新大螢幕提問牆
+    // 從後端拉取即時提問並渲染大螢幕提問牆
     function fetchStreamData() {
       fetch(API_URL)
         .then(res => res.json())
@@ -741,7 +1358,7 @@
     }
 
     function renderWall(rawList) {
-      // 依時間正序分配序號 (#1, #2, #3...)
+      // 依時間正序分配固定序號
       const chronological = [...rawList].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
       
       const processed = chronological.map((item, idx) => ({
@@ -750,7 +1367,8 @@
         email: item.email || "",
         category: item.category || "現場提問",
         message: item.message || "",
-        timeStr: formatClock(item.timestamp)
+        timeStr: formatClock(item.timestamp),
+        upvotes: (localUpvotes[idx + 1] || 0)
       }));
 
       // 投影牆依最新在上排列
@@ -758,13 +1376,17 @@
       const hasNew = cachedData.length > 0 && display.length > cachedData.length;
       cachedData = display;
 
-      document.getElementById('totalQuestionsCount').textContent = display.length;
+      document.getElementById('totalQuestionsCount').textContent = `${display.length} 則動態`;
 
       const container = document.getElementById('wallQuestionsList');
       if (display.length === 0) {
         container.innerHTML = `
-          <div class="empty-prompt">
-            💭 目前現場尚無提問，拿起手機掃描上方 QR Code 搶先發問吧！
+          <div class="empty-state-card">
+            <div class="empty-icon">💭</div>
+            <div class="empty-text-main">現場連線已準備就緒，尚無提問</div>
+            <div class="empty-text-sub">
+              拿起手機對準上方 QR Code，搶先提出您的第一個問題或心得！
+            </div>
           </div>
         `;
         return;
@@ -772,27 +1394,60 @@
 
       let html = '';
       display.forEach((q, idx) => {
-        const isNew = (idx === 0 && hasNew) ? 'new-pulse' : '';
+        const isNew = (idx === 0 && hasNew) ? 'arrival-glow' : '';
         const isFeedback = q.category === '心得回饋';
-        const badgeClass = isFeedback ? 'q-badge badge-feedback' : 'q-badge';
-        const cardClass = isFeedback ? 'q-card type-feedback ' + isNew : 'q-card ' + isNew;
-        const tagLabel = isFeedback ? `🎁 心得 #${q.id}` : `💬 提問 #${q.id}`;
+        const cardTypeClass = isFeedback ? 'card-feedback' : 'card-question';
+        const tagTypeClass = isFeedback ? 'tag-feedback' : 'tag-question';
+        const tagLabel = isFeedback ? `🎁 心得 #${formatNum(q.id)}` : `💬 提問 #${formatNum(q.id)}`;
+        
+        // 取得暱稱首字為頭像
+        const avatarLetter = (q.name && q.name.trim()) ? q.name.trim().slice(0, 1).toUpperCase() : '友';
 
         html += `
-          <div class="${cardClass}">
-            <div class="q-card-top">
-              <span class="${badgeClass}">${tagLabel}</span>
-              <div class="q-meta">${escapeHtml(q.name)} • ${q.timeStr}</div>
+          <article class="q-card-premium ${cardTypeClass} ${isNew}">
+            <div class="card-meta-header">
+              <div class="author-badge-group">
+                <div class="avatar-ring">${escapeHtml(avatarLetter)}</div>
+                <span class="card-tag ${tagTypeClass}">${tagLabel}</span>
+                <span class="author-name">${escapeHtml(q.name)}</span>
+              </div>
+              <div class="card-time">${escapeHtml(q.timeStr)}</div>
             </div>
-            <div class="q-body">${escapeHtml(q.message)}</div>
-          </div>
+            
+            <div class="card-text-body">${escapeHtml(q.message)}</div>
+
+            <div class="card-footer-actions">
+              <button type="button" class="upvote-pill ${q.upvotes > 0 ? 'active' : ''}" onclick="handleUpvote(${q.id})">
+                <span>👍</span> 認同 <strong style="font-variant-numeric: tabular-nums;">${q.upvotes > 0 ? q.upvotes : ''}</strong>
+              </button>
+            </div>
+          </article>
         `;
       });
 
       container.innerHTML = html;
     }
 
-    // 格式化時間 HH:mm
+    // 點讚互動
+    function handleUpvote(id) {
+      localUpvotes[id] = (localUpvotes[id] || 0) + 1;
+      localStorage.setItem('qa_upvotes', JSON.stringify(localUpvotes));
+      // 即時重新渲染
+      if (cachedData.length > 0) {
+        renderWall(cachedData.map(item => ({
+          timestamp: new Date().toISOString(),
+          name: item.name,
+          email: item.email,
+          category: item.category,
+          message: item.message
+        })));
+      }
+    }
+
+    function formatNum(n) {
+      return n < 10 ? `0${n}` : `${n}`;
+    }
+
     function formatClock(isoStr) {
       if (!isoStr) return "";
       try {
@@ -803,7 +1458,7 @@
       }
     }
 
-    // 匯出 CSV (供老師後台備份)
+    // 匯出 CSV (供後台備份)
     function exportDataToCsv() {
       if (cachedData.length === 0) {
         alert('尚無資料可供匯出');
@@ -818,7 +1473,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `演講名單與提問_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `主權講堂_名單與提問_${new Date().toISOString().slice(0, 10)}.csv`;
       a.click();
     }
 
